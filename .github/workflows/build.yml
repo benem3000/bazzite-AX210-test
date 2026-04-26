@@ -92,6 +92,11 @@ jobs:
           name: patched-kernel
           path: ./kernel-rpms
 
+      - name: Inject version number
+        run: |
+          VERSION=$(cat version.txt | tr -d '\n')
+          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" recipes/${{ matrix.recipe }}
+
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
