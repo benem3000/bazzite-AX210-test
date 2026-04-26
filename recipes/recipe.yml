@@ -13,6 +13,8 @@ modules:
     files:
       - source: system
         destination: /
+      - source: kernel-rpms
+        destination: /kernel-rpms
 
   - type: dnf
     repos:
