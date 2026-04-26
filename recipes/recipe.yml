@@ -45,5 +45,10 @@ modules:
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
 
   - type: script
-      scripts:
-        - kernel-swap.sh
+    snippets:
+      - |
+        echo "Swapping to Patched AX210 Kernel..."
+        rpm-ostree override replace \
+          /github/home/kernel-rpms/kernel-core-*.rpm \
+          /github/home/kernel-rpms/kernel-modules-*.rpm \
+          /github/home/kernel-rpms/kernel-modules-extra-*.rpm
