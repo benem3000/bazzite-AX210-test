@@ -31,19 +31,22 @@ modules:
     configurations:
       - notify: true
         scope: system
-        
         install:
           - org.mozilla.firefox
           - org.gnome.Loupe
       - scope: user
-
-  - type: signing
 
   - type: script
     snippets:
       - |
         echo "Swapping to Patched AX210 Kernel..."
         rpm-ostree override replace \
-          ./kernel-rpms/kernel-core-*.rpm \
-          ./kernel-rpms/kernel-modules-*.rpm \
-          ./kernel-rpms/kernel-modules-extra-*.rpm
+          /kernel-rpms/kernel-core-*.rpm \
+          /kernel-rpms/kernel-modules-*.rpm \
+          /kernel-rpms/kernel-modules-extra-*.rpm
+        
+        echo "Cleaning up RPMs to save space..."
+        rm -rf /kernel-rpms
+
+  # MOVED TO BOTTOM: Always sign the image last!
+  - type: signing
