@@ -20,7 +20,6 @@ permissions:
 jobs:
   build-kernel:
     runs-on: ubuntu-latest
-    # We need a small step to get the version before the main container runs
     outputs:
       fedora_version: ${{ steps.set-version.outputs.version }}
     steps:
@@ -49,7 +48,7 @@ jobs:
                          gcc-c++ glibc-static hostname kernel-rpm-macros lvm2 \
                          net-tools nss-tools openssl pesign python3-devel \
                          systemd-boot-unsigned systemd-ukify tpm2-tools which dracut elfutils-devel \
-                         dosfstools e2fsprogs xfsprogs # <--- ADDED THESE THREE HERE
+                         dosfstools e2fsprogs xfsprogs
 
           rpmdev-setuptree
           dnf download --source kernel
@@ -82,7 +81,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe: [recipe.yml]
+        recipe: [recipes/recipe.yml]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -96,12 +95,15 @@ jobs:
       - name: Inject version number
         run: |
           VERSION=$(cat version.txt | tr -d '\n')
-          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" recipes/${{ matrix.recipe }}
+          echo "Injecting version $VERSION into ${{ matrix.recipe }}..."
+          # Now sed and matrix use the exact same path
+          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" "${{ github.workspace }}/${{ matrix.recipe }}"
+          head -n 15 "${{ github.workspace }}/${{ matrix.recipe }}"
 
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
-          recipe: ${{ matrix.recipe }}
+          recipe: ${{ matrix.recipe }} 
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           registry_token: ${{ github.token }}
           maximize_build_space: true
