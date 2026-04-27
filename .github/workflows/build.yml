@@ -95,10 +95,19 @@ jobs:
       - name: Inject version number
         run: |
           VERSION=$(cat version.txt | tr -d '\n')
-          echo "Injecting version $VERSION into ${{ matrix.recipe }}..."
-          # Now sed and matrix use the exact same path
-          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" "${{ github.workspace }}/${{ matrix.recipe }}"
-          head -n 15 "${{ github.workspace }}/${{ matrix.recipe }}"
+          TARGET_FILE="${{ github.workspace }}/recipes/recipe.yml"
+          
+          echo "Injecting $VERSION into $TARGET_FILE..."
+          
+          if [ -f "$TARGET_FILE" ]; then
+            sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" "$TARGET_FILE"
+            head -n 15 "$TARGET_FILE"
+          else
+            echo "Error: $TARGET_FILE not found!"
+            ls -R ${{ github.workspace }}
+            exit 1
+          fi
+
 
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
