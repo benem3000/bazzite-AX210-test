@@ -64,7 +64,6 @@ jobs:
           rpmbuild -bb --target=x86_64 --with baseonly --without debuginfo --without debug kernel.spec
           
           mkdir -p $GITHUB_WORKSPACE/output
-          # CHANGED: Use a wildcard to copy ALL generated kernel RPMs (including kernel-devel)
           cp ~/rpmbuild/RPMS/x86_64/*.rpm $GITHUB_WORKSPACE/output/
 
       - name: Upload Kernel Artifacts
