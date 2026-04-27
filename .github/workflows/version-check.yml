@@ -1,0 +1,51 @@
+name: Check Version Alignment
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch: # Allows you to trigger it manually
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Latest Fedora Version
+        id: fedora
+        run: |
+          # Pulls the version number of the current Fedora stable release
+          FEDORA_VER=$(curl -s https://infrastructure.fedoraproject.org/pub/fedora/linux/releases/ | grep -oP '(?<=href=")\d+(?=/")' | sort -rn | head -n 1)
+          echo "latest_fedora=$FEDORA_VER" >> $GITHUB_OUTPUT
+
+      - name: Get Latest Bazzite Base Version
+        id: bazzite
+        run: |
+          # Uses skopeo to check the labels on the Bazzite image without downloading it
+          BAZZITE_VER=$(skopeo inspect docker://ghcr.io/ublue-os/bazzite:latest | jq -r '.Labels["org.opencontainers.image.version"]' | cut -d. -f1)
+          echo "latest_bazzite=$BAZZITE_VER" >> $GITHUB_OUTPUT
+
+      - name: Compare and Notify
+        run: |
+          CURRENT_V_FILE=$(cat version.txt | tr -d '\n')
+          NEW_FEDORA=${{ steps.fedora.outputs.latest_fedora }}
+          NEW_BAZZITE=${{ steps.bazzite.outputs.latest_bazzite }}
+
+          echo "Current file: $CURRENT_V_FILE | Fedora: $NEW_FEDORA | Bazzite: $NEW_BAZZITE"
+
+          if [ "$NEW_FEDORA" == "$NEW_BAZZITE" ] && [ "$NEW_FEDORA" != "$CURRENT_V_FILE" ]; then
+            echo "Alignment detected! Updating to Fedora $NEW_FEDORA."
+            echo "$NEW_FEDORA" > version.txt
+            
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add version.txt
+            git commit -m "chore: update version to $NEW_FEDORA (automated alignment)"
+            git push
+            
+            echo "::notice title=New Build Started::Fedora and Bazzite are now both on version $NEW_FEDORA. Starting patched build."
+          else
+            echo "No update needed or versions are not yet aligned. Exiting silently."
+          fi
