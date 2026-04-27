@@ -64,9 +64,8 @@ jobs:
           rpmbuild -bb --target=x86_64 --with baseonly --without debuginfo --without debug kernel.spec
           
           mkdir -p $GITHUB_WORKSPACE/output
-          cp ~/rpmbuild/RPMS/x86_64/kernel-core-*.rpm $GITHUB_WORKSPACE/output/
-          cp ~/rpmbuild/RPMS/x86_64/kernel-modules-*.rpm $GITHUB_WORKSPACE/output/
-          cp ~/rpmbuild/RPMS/x86_64/kernel-modules-extra-*.rpm $GITHUB_WORKSPACE/output/ || true
+          # CHANGED: Use a wildcard to copy ALL generated kernel RPMs (including kernel-devel)
+          cp ~/rpmbuild/RPMS/x86_64/*.rpm $GITHUB_WORKSPACE/output/
 
       - name: Upload Kernel Artifacts
         uses: actions/upload-artifact@v4
@@ -107,7 +106,6 @@ jobs:
             ls -R ${{ github.workspace }}
             exit 1
           fi
-
 
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
