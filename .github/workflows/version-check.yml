@@ -24,12 +24,12 @@ jobs:
           echo "latest_bazzite=$BAZZITE_VER" >> $GITHUB_OUTPUT
 
       - name: Compare and Notify
+        env:
+          GH_TOKEN: ${{ github.token }} # Uses the temporary, safe token
         run: |
           CURRENT_V_FILE=$(cat version.txt | tr -d '\n')
           NEW_FEDORA=${{ steps.fedora.outputs.latest_fedora }}
           NEW_BAZZITE=${{ steps.bazzite.outputs.latest_bazzite }}
-
-          echo "Current file: $CURRENT_V_FILE | Fedora: $NEW_FEDORA | Bazzite: $NEW_BAZZITE"
 
           if [ "$NEW_FEDORA" == "$NEW_BAZZITE" ] && [ "$NEW_FEDORA" != "$CURRENT_V_FILE" ]; then
             echo "Alignment detected! Updating to Fedora $NEW_FEDORA."
@@ -40,6 +40,10 @@ jobs:
             git add version.txt
             git commit -m "chore: update version to $NEW_FEDORA"
             git push
+
+            # This tells GitHub to start the build-kernel job immediately
+            echo "Manually triggering the main build..."
+            gh workflow run build.yml
           else
-            echo "No update required or versions misaligned."
+            echo "No update required at this time."
           fi
