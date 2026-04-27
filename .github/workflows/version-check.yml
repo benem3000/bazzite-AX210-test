@@ -25,7 +25,7 @@ jobs:
 
       - name: Compare and Notify
         env:
-          GH_TOKEN: ${{ github.token }} # Uses the temporary, safe token
+          GH_TOKEN: ${{ github.token }}
         run: |
           CURRENT_V_FILE=$(cat version.txt | tr -d '\n')
           NEW_FEDORA=${{ steps.fedora.outputs.latest_fedora }}
