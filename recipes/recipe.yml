@@ -2,7 +2,6 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # image will be published to ghcr.io/<user>/<name>
 name: bazzite-AX210-test
-# description will be included in the image's metadata
 description: MCS patched bazzite.
 
 base-image: ghcr.io/ublue-os/bazzite
@@ -13,21 +12,17 @@ modules:
     files:
       - source: system
         destination: /
-      # CHANGED: Place files in /tmp to keep the final OS image clean
       - source: kernel-rpms
         destination: /tmp/kernel-rpms
 
-  # REMOVED: dnf and default-flatpaks modules to keep the OS identical to stock Bazzite
 
   - type: script
     snippets:
       - |
         echo "Swapping to Patched AX210 Kernel..."
-        # CHANGED: Use a wildcard to replace all kernel packages at once to satisfy dependencies
         rpm-ostree override replace /tmp/kernel-rpms/*.rpm
         
         echo "Cleaning up RPMs to save space..."
         rm -rf /tmp/kernel-rpms
 
-  # MOVED TO BOTTOM: Always sign the image last!
   - type: signing
