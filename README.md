@@ -7,6 +7,21 @@ _Version numbers should align with Bazzite stable releases. Alternate versions f
 
 ## This is currently for desktop AMD or Intel gpus only. Gnome, steam deck, and other special versions not yet available.
 
+## Please first verify this is the same issue:
+
+Run the following command while connected to the wifi network you're having issues with:
+```
+sudo dmesg | grep "required MCSes not supported"
+```
+If it returns 'required MCSes not supported, disabling HT.' then this is the same issue.
+If it does not show that then you can try some of the steps in the "Common Issues and Troubleshooting" sections down below if your card uses the iwlwifi driver. 
+Run this command to check:
+
+```
+lspci -k | grep -iA2 network
+```
+If those don't work then I'd recommend asking for help on bazzite-help in discord.
+
 ## Installation
 
 ### IMPORTANT! Please pin your current install before rebasing!
@@ -74,12 +89,12 @@ You can verify the signature by downloading the `cosign.pub` file from this repo
 
 ### Follow recommended steps on bazzite's website: https://docs.bazzite.gg/General/issues_and_resolutions/#wi-fi-is-slow-wi-fi-lag-spikes
 
-### Disable Wi-Fi 6 (802.11ax)
-If the Intel AX210/AX1675 card is still failing to negotiate with the router, forcing the card to fall back to Wi-Fi 5 (802.11ac) often stabilizes the connection. Apply this kernel argument and reboot:
+### Disable Wi-Fi 6 (ax)
+If the Intel AX210/AX1675 card is still failing to negotiate with the router, forcing the card to fall back to Wi-Fi 5 (ac) often stabilizes the connection. Apply this kernel argument and reboot:
 
 `rpm-ostree kargs --append="iwlwifi.disable_11ax=1"`
 
-### Disable 802.11n Aggregation
+### Disable n Aggregation
 If you experience extreme lag spikes or packet loss while connected, the hardware TX aggregation might be failing. You can disable it by passing the `11n_disable=8` parameter:
 
 `rpm-ostree kargs --append="iwlwifi.11n_disable=8"`
