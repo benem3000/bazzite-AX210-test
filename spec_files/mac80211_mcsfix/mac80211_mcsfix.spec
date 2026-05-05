@@ -31,12 +31,13 @@ fi
 
 grep "linux-${KVER_BASE}.tar.xz" sha256sums.asc | sha256sum -c -
 
-tar -xJf "linux-${KVER_BASE}.tar.xz" --strip-components=1 "linux-${KVER_BASE}/net/mac80211" "linux-${KVER_BASE}/include"
+tar -xJf "linux-${KVER_BASE}.tar.xz" --strip-components=1 "linux-${KVER_BASE}/net/mac80211" "linux-${KVER_BASE}/drivers/net/wireless/intel/iwlwifi" "linux-${KVER_BASE}/include"
 
-patch -d net/mac80211 -p0 < %{SOURCE0} || exit 1
+patch -p1 < %{SOURCE0} || exit 1
 
 %build
 make -C /usr/src/kernels/%{kversion} M=$PWD/net/mac80211 modules
+make -C /usr/src/kernels/%{kversion} M=$PWD/drivers/net/wireless/intel/iwlwifi modules
 
 %install
 mkdir -p %{buildroot}/lib/modules/%{kversion}/extra/
@@ -44,6 +45,8 @@ mkdir -p %{buildroot}/usr/share/mcspatched/
 mkdir -p %{buildroot}/usr/lib/depmod.d/
 
 strip --strip-debug net/mac80211/mac80211.ko
+strip --strip-debug drivers/net/wireless/intel/iwlwifi/iwlwifi.ko
+strip --strip-debug drivers/net/wireless/intel/iwlwifi/mvm/iwlmvm.ko
 
 SIGN_FILE_PATH=$(find /usr/src/kernels/%{kversion} -name sign-file | head -n 1)
 
@@ -53,23 +56,31 @@ if [[ -z "$SIGN_FILE_PATH" ]]; then
 fi
 
 "$SIGN_FILE_PATH" sha512 %{mok_priv} %{mok_x509} net/mac80211/mac80211.ko
+"$SIGN_FILE_PATH" sha512 %{mok_priv} %{mok_x509} drivers/net/wireless/intel/iwlwifi/iwlwifi.ko
+"$SIGN_FILE_PATH" sha512 %{mok_priv} %{mok_x509} drivers/net/wireless/intel/iwlwifi/mvm/iwlmvm.ko
 
 echo "override mac80211 * extra" > %{buildroot}/usr/lib/depmod.d/mcspatched.conf
+echo "override iwlwifi * extra" >> %{buildroot}/usr/lib/depmod.d/mcspatched.conf
+echo "override iwlmvm * extra" >> %{buildroot}/usr/lib/depmod.d/mcspatched.conf
 
 install -m 755 net/mac80211/mac80211.ko %{buildroot}/lib/modules/%{kversion}/extra/mac80211.ko
+install -m 755 drivers/net/wireless/intel/iwlwifi/iwlwifi.ko %{buildroot}/lib/modules/%{kversion}/extra/iwlwifi.ko
+install -m 755 drivers/net/wireless/intel/iwlwifi/mvm/iwlmvm.ko %{buildroot}/lib/modules/%{kversion}/extra/iwlmvm.ko
 install -m 644 %{SOURCE1} %{buildroot}/usr/share/mcspatched/public_key.der
 
 %files
 /lib/modules/%{kversion}/extra/mac80211.ko
+/lib/modules/%{kversion}/extra/iwlwifi.ko
+/lib/modules/%{kversion}/extra/iwlmvm.ko
 /usr/share/mcspatched/public_key.der
 /usr/lib/depmod.d/mcspatched.conf
 
 %post
 depmod -a %{kversion}
 
-echo "=== VERIFYING IMAGE MODULE MAP ==="
 depmod -n %{kversion} | grep "mac80211.ko"
-echo "=================================="
+depmod -n %{kversion} | grep "iwlwifi.ko"
+depmod -n %{kversion} | grep "iwlmvm.ko"
 
 %postun
 depmod -a %{kversion}
