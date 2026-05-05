@@ -32,7 +32,7 @@ If those don't work then I'd recommend asking for help on bazzite-help in discor
 
 First, rebase to the unverified registry to pull down the initial image containing the proper signing keys and policies:
 
-`rpm-ostree rebase ostree-unverified-registry:ghcr.io/benem3000/mcspatched-bazzite:latest`
+`rpm-ostree rebase ostree-unverified-registry:ghcr.io/benem3000/mcspatched-bazzite:main`
 
 ### 2. First Reboot
 Reboot your machine:
@@ -51,7 +51,7 @@ _If you are not using secure boot then it is not recommended to enroll they key.
 ### 4. Rebase to the Signed Image
 Now that the signing keys and policies are installed from the first step, secure your system by rebasing to the cryptographically signed image:
 
-`rpm-ostree rebase ostree-image-signed:docker://ghcr.io/benem3000/mcspatched-bazzite:latest`
+`rpm-ostree rebase ostree-image-signed:docker://ghcr.io/benem3000/mcspatched-bazzite:main`
 
 ### 5. Final Reboot
 Reboot your system one last time to apply the signed image and the kernel argument:
