@@ -1,5 +1,6 @@
---- mlme.orig.c	2026-04-28 19:17:22.999992174 -0600
-+++ mlme.c	2026-05-02 19:58:16.946705060 -0600
+diff -urN orig/net/mac80211/mlme.c mod/net/mac80211/mlme.c
+--- orig/net/mac80211/mlme.c	2026-04-28 19:17:22.999992174 -0600
++++ mod/net/mac80211/mlme.c	2026-05-02 19:58:16.946705060 -0600
 @@ -438,6 +438,18 @@
  	ieee80211_apply_htcap_overrides(sdata, &sta_ht_cap);
  
