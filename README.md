@@ -145,7 +145,7 @@ _You should still have your old image pinned if you want to easily return to sto
 ## Technical Detail
 _I'll do my best to explain this from the information I've gathered, but I'm not a specialist in this field. Just a guy trying to get his wifi working._
 
-Certain routers, namely the XB7 or later routers (XB6 may also be affected) from Comcast (Technicolor and Sercomm models confirmed to be affected), have a software bug that likely resulted from a copy/paste of the router capabilities into the basic MCS requirements for the older 802.11n (HT) and 802.11ac (VHT) standards. 802.11ac and ax are not affected, 802.11be is not yet confirmed as it was disabled on my router, but there shouldn't be an issue. The Mac80211 kernel module by default adheres strictly to the ieee 802.11 standards and disables the HT capabilities when it sees these incorrect Basic MCS Set from the router. While thise likely differs from behavior in Windows and MacOS, it is technically the correct way to handle the situation. Some users may wish, however, to have the option to bypass this to make their wifi usable until a fix is integrated into the kernel.
+Certain routers, namely the XB7 or later routers (XB6 may also be affected) from Comcast (Technicolor and Sercomm models confirmed to be affected), have a software bug that likely resulted from a copy/paste of the router capabilities into the basic MCS requirements for the older 802.11n (HT) and 802.11ac (VHT) standards. 802.11ax is not affected, 802.11be is not yet confirmed as it was disabled on my router and my card doesn't support it, but there shouldn't be an issue. The Mac80211 kernel module by default adheres strictly to the ieee 802.11 standards and disables the HT capabilities when it sees these incorrect Basic MCS Set from the router. While this likely differs from behavior in Windows and MacOS, it is technically the correct way to handle the situation. Some users may wish, however, to have the option to bypass this to make their wifi usable until a fix is integrated into the kernel.
 
 This patch modifies the source file mlme.c in mac80211 to align HT mcs checks with how VHT mcs checks are performed by only verifying mcs in strict mode.
 This line is what already exists in the kernel where mac80211 checks the VHT MCS set agains what the router is requiring:
@@ -188,9 +188,9 @@ This instructs mac80211 to ignore the MCS verification and enable HT anyway unti
 > So far we did not verify the HT and VHT basic MCS set. However, in
 > P802.11REVme/D7.0 (6.5.4.2.4) says that the MLME-JOIN.request shall
 > return an error if the VHT and HT basic set requirements are not met.
-
-Given broken APs, apply VHT basic MCS/NSS set checks only in
-strict mode.
+>
+>Given broken APs, apply VHT basic MCS/NSS set checks only in
+>strict mode.
 
 While the VHT issue had to do with all-zero entries into the Basic MCS Set for VHT, the issue with HT is actually the opposite with all f's, but the result is functionally the same.
 HT:
