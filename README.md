@@ -1,5 +1,7 @@
 # MCSPatched-Bazzite &nbsp; [![Generate Kmod](https://github.com/benem3000/mcspatched/actions/workflows/build.yml/badge.svg)](https://github.com/benem3000/mcspatched/actions/workflows/build.yml)
 
+##UPDATE: This fix has been implemented into the main Linux kernel starting with 7.0.13. Bazzite stable is at 7.0.9 as of writing on July 12th, 2026. I expect that the next stable release should use a patched kernel, so I will be stopping the auto-building features immediately and archiving this repo once the fix is confirmed to be in stable.
+
 _A kernel-level fix is currently in the works, but will take time: https://git.kernel.org/pub/scm/linux/kernel/git/wireless/wireless.git/commit/?id=711a9c018ad252b2807f85d44e1267b595644f9b_
 _My patch is functionally identical as both are derived from related code in the kernel._
 
