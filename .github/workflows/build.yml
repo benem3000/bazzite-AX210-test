@@ -112,7 +112,7 @@ jobs:
           sed -i "s/branch-placeholder/${{ needs.check-version.outputs.branch }}/g" recipes/recipe.yml
 
       - name: Build Custom Image
-        uses: blue-build/github-action@v1.11
+        uses: blue-build/github-action@v1.12
         with:
           recipe: recipe.yml
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
